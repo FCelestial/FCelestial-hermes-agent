@@ -1623,11 +1623,7 @@ def _make_tui_argv(tui_dir: Path, tui_dev: bool) -> tuple[list[str], Path]:
         npm_cwd = _workspace_root(tui_dir)
         # --workspace ui-tui avoids resolving apps/desktop (Electron + node-pty).
         # See #38772.
-        # When ui-tui/ has its own package-lock.json (e.g. curl install),
-        # _workspace_root() returns tui_dir itself.  Passing --workspace in
-        # that case fails because npm cannot find a workspace named "ui-tui"
-        # inside ui-tui/.  See #42973.
-        npm_workspace_args: tuple[str, ...] = () if npm_cwd == tui_dir else ("--workspace", "ui-tui")
+        npm_workspace_args: tuple[str, ...] = ("--workspace", "ui-tui")
         if termux_startup:
             npm_cwd, npm_workspace_args = _termux_workspace_install_context(
                 tui_dir,
@@ -4646,9 +4642,7 @@ def _build_web_ui(web_dir: Path, *, fatal: bool = False) -> bool:
     # graph (including apps/desktop with its Electron + node-pty deps) is never
     # resolved here.  Without --workspace the root package.json's apps/* glob
     # would pull in desktop on every web build. See #38772.
-    # When web/ has its own package-lock.json, _workspace_root() returns
-    # web_dir itself and --workspace would fail.  See #42973.
-    npm_workspace_args: tuple[str, ...] = () if npm_cwd == web_dir else ("--workspace", "web")
+    npm_workspace_args: tuple[str, ...] = ("--workspace", "web")
     if _is_termux_startup_environment():
         npm_cwd, npm_workspace_args = _termux_workspace_install_context(web_dir)
     r1 = _run_npm_install_deterministic(
@@ -5702,7 +5696,7 @@ def _update_via_zip(args):
         )
         sys.exit(1)
     zip_url = (
-        f"https://github.com/NousResearch/hermes-agent/archive/refs/heads/{branch}.zip"
+        f"https://github.com/FCelestial/FCelestial-hermes-agent/archive/refs/heads/{branch}.zip"
     )
 
     print("→ Downloading latest version...")
@@ -6106,12 +6100,12 @@ def _discard_stashed_changes(
 # =========================================================================
 
 OFFICIAL_REPO_URLS = {
-    "https://github.com/NousResearch/hermes-agent.git",
+    "https://github.com/FCelestial/FCelestial-hermes-agent.git",
     "git@github.com:NousResearch/hermes-agent.git",
-    "https://github.com/NousResearch/hermes-agent",
+    "https://github.com/FCelestial/FCelestial-hermes-agent",
     "git@github.com:NousResearch/hermes-agent",
 }
-OFFICIAL_REPO_URL = "https://github.com/NousResearch/hermes-agent.git"
+OFFICIAL_REPO_URL = "https://github.com/FCelestial/FCelestial-hermes-agent.git"
 SKIP_UPSTREAM_PROMPT_FILE = ".skip_upstream_prompt"
 
 
@@ -6259,7 +6253,7 @@ def _sync_with_upstream_if_needed(git_cmd: list[str], cwd: Path) -> None:
             print("→ Adding upstream remote...")
             if _add_upstream_remote(git_cmd, cwd):
                 print(
-                    "  ✓ Added upstream: https://github.com/NousResearch/hermes-agent.git"
+                    "  ✓ Added upstream: https://github.com/FCelestial/FCelestial-hermes-agent.git"
                 )
                 has_upstream = True
             else:
@@ -6267,7 +6261,7 @@ def _sync_with_upstream_if_needed(git_cmd: list[str], cwd: Path) -> None:
                 return
         else:
             print(
-                "  Skipped. Run 'git remote add upstream https://github.com/NousResearch/hermes-agent.git' to add later."
+                "  Skipped. Run 'git remote add upstream https://github.com/FCelestial/FCelestial-hermes-agent.git' to add later."
             )
             _mark_skip_upstream_prompt()
             return
