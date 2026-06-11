@@ -22,6 +22,7 @@ concurrency:
 
 jobs:
   deploy-vercel:
+    if: ${{ secrets.VERCEL_DEPLOY_HOOK_URL != '' }}
     # Triggered automatically on release publish (production cuts) and
     # manually via `gh workflow run deploy-site.yml` when an out-of-band
     # main commit needs to ship live before the next release tag — e.g.
