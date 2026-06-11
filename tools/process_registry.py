@@ -1232,8 +1232,9 @@ class ProcessRegistry:
             return {"status": "error", "error": str(e)}
 
     def submit_stdin(self, session_id: str, data: str = "") -> dict:
-        """Send data + newline to a running process's stdin (like pressing Enter)."""
-        return self.write_stdin(session_id, data + "\n")
+        """Send data + newline (Windows: \\r, POSIX: \\n)."""
+        newline = "\r" if _IS_WINDOWS else "\n"
+        return self.write_stdin(session_id, data + newline)
 
     def close_stdin(self, session_id: str) -> dict:
         """Close a running process's stdin / send EOF without killing the process."""
