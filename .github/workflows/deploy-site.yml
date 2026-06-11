@@ -1,10 +1,8 @@
 name: Deploy Site
 
 on:
-  release:
-    types: [published]
-  push:
-    branches: [main]
+  # Disabled on fork — only manual trigger
+  workflow_dispatch:
     paths:
       - 'website/**'
       - 'skills/**'
