@@ -192,17 +192,21 @@ def _log_exit(reason: str) -> None:
     print(f"[gateway-exit] {reason}", file=sys.stderr, flush=True)
 
 
-def wait_for_mcp_discovery(timeout: float = 0.75) -> None:
+def wait_for_mcp_discovery(timeout: float = 15.0) -> None:
     """Briefly block until background MCP discovery finishes, up to ``timeout``.
 
     MCP discovery runs in a daemon thread spawned at startup (see main()) so a
     slow/dead server can't freeze ``gateway.ready``.  But the agent snapshots
     its tool list ONCE at build time and never re-reads it, so a reachable-but-
     slow server that finishes connecting *after* the first prompt would be
-    invisible for the whole session.  Joining with a short bounded timeout
+    invisible for the whole session.  Joining with a bounded timeout
     before the first agent build lets already-spawning fast servers land
     without re-introducing the startup hang: a dead server simply isn't waited
     on beyond ``timeout``.  No-op when no discovery thread was started.
+
+    Default timeout raised from 0.75s to 15s because HTTP/SSE MCP servers
+    (e.g. windows-mcp) routinely take 5-8 seconds to connect and discover
+    tools over a local HTTP transport.
     """
     thread = _mcp_discovery_thread
     if thread is None or not thread.is_alive():

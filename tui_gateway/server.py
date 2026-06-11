@@ -3071,16 +3071,18 @@ def _make_agent(
     from run_agent import AIAgent
     from hermes_cli.runtime_provider import resolve_runtime_provider
 
-    # MCP tool discovery runs in a background daemon thread at startup so a
-    # dead server can't freeze the shell (see tui_gateway/entry.py).  The agent
-    # snapshots its tool list once here and never re-reads it, so briefly wait
-    # for in-flight discovery to land before building — bounded, so a slow/dead
-    # server still can't block.  No-op once discovery has finished (every build
-    # after the first during a slow startup).
+    # MCP tool discovery: call discover_mcp_tools() directly rather than
+    # relying on the background daemon thread (which can silently fail to
+    # start, e.g. if config parsing or import ordering is off).
+    # discover_mcp_tools() is idempotent — subsequent calls are no-ops
+    # once servers are connected.  A dead/slow server may add a few seconds
+    # to the first agent build, but the agent snapshots its tool list once
+    # and never re-reads it, so getting MCP tools on the first build is
+    # the only way they'll ever be available in this session.
     try:
-        from tui_gateway.entry import wait_for_mcp_discovery
+        from tools.mcp_tool import discover_mcp_tools
 
-        wait_for_mcp_discovery()
+        discover_mcp_tools()
     except Exception:
         pass
 
